@@ -8,7 +8,7 @@ const gameBoardModule = (function () {
 
 
 //Module for selecting elements from DOM
-const selectElements = (function () {
+const selectElementsModule = (function () {
 
     const form = document.querySelector("form");
     const playerOneName = document.querySelector('input[name="player-one-name"]');
@@ -19,6 +19,7 @@ const selectElements = (function () {
     const emptyWaring = document.getElementById("empty-warning");
     const symbolWaring = document.getElementById("symbol-warning");
     const gridContainer = document.querySelector(".grid-container");
+    const gridBox = document.querySelectorAll(".grid-box");
     const playerDetailsScreen = document.querySelector(".player-details-screen");
     const mainHeader = document.querySelector(".main-header");
 
@@ -32,21 +33,79 @@ const selectElements = (function () {
         emptyWaring,
         symbolWaring,
         gridContainer,
+        gridBox,
         playerDetailsScreen,
         mainHeader,
     };
 })();
 
 
+// Module to values in form entered by user
+const validateModule = (function () {
+
+    selectElementsModule.startGameBtn.addEventListener("click", validateChoice)
+
+    // Form Validation   
+    function validateChoice() {
+
+        if (selectElementsModule.playerOneName.value == "" || selectElementsModule.playerTwoName.value == "") {
+
+            selectElementsModule.emptyWaring.style.display = "block"
+
+        } else if (selectElementsModule.playerOneRadioBtn[0].checked == selectElementsModule.playerTwoRadioBtn[0].checked ||
+            selectElementsModule.playerOneRadioBtn[1].checked == selectElementsModule.playerTwoRadioBtn[1].checked) {
+
+            selectElementsModule.symbolWaring.style.display = "block"
+            selectElementsModule.emptyWaring.style.display = "none"
+
+        } else {
+            selectElementsModule.mainHeader.style.display = "block";
+            selectElementsModule.gridContainer.style.display = "grid";
+            selectElementsModule.playerDetailsScreen.style.display = "none"
+        }
+    }
+
+})();
+
+
 //Display Controller Module
 const displayControllerModule = (function () {
-    const gridBox = document.querySelectorAll(".grid-box");
-    gridBox.forEach(grid => {
-        grid.addEventListener("click", renderToDisplay);
-    })
+
+    let player1;
+    let player2;
+    selectElementsModule.startGameBtn.addEventListener("click", playerValues);
+
+    //Function to take user input and create player object with the input
+    function playerValues() {
+        let playerOneName = selectElementsModule.playerOneName.value;
+        let playerTwoName = selectElementsModule.playerTwoName.value;
+        let playerOneChoice = "";
+        let playerTwoChoice = "";
+
+        //Check which symbols players have selected
+        selectElementsModule.playerOneRadioBtn[0].checked ? playerOneChoice = selectElementsModule.playerOneRadioBtn[0].labels[0].innerText : playerOneChoice = selectElementsModule.playerOneRadioBtn[1].labels[0].innerText;
+        selectElementsModule.playerTwoRadioBtn[0].checked ? playerTwoChoice = selectElementsModule.playerTwoRadioBtn[0].labels[0].innerText : playerTwoChoice = selectElementsModule.playerTwoRadioBtn[1].labels[0].innerText;
+
+        //create player objects
+        player1 = createPlayer(playerOneName, "1", playerOneChoice);
+        player2 = createPlayer(playerTwoName, "2", playerTwoChoice);
+
+        //mark 'X' or 'O' when each grid is clicked
+        selectElementsModule.gridBox.forEach(grid => {
+            grid.addEventListener("click", renderToDisplay);
+        })
+
+        return {
+            player1,
+            player2
+        }
+
+    }
 
     //Function to render X and O on display
     function renderToDisplay(e) {
+
+        //get index of each box
         let index = e.target.dataset.index;
 
         // Restrict players from playing in spots that are already taken 
@@ -72,41 +131,13 @@ const displayControllerModule = (function () {
                 player1.isPlayerActive = "true";
             }
         }
-
-
     };
-
-    // return {
-    //     renderToDisplay
-    // };
 })();
+
 
 
 //Factory Function to create players
 function createPlayer(playerName, playerNumber, playerSymbol) {
-
-    selectElements.startGameBtn.addEventListener("click", validateChoice)
-
-    // Form Validation   
-    function validateChoice(e) {
-
-        if (selectElements.playerOneName.value == "" || selectElements.playerTwoName.value == "") {
-
-            selectElements.emptyWaring.style.display = "block"
-
-        } else if (selectElements.playerOneRadioBtn[0].checked == selectElements.playerTwoRadioBtn[0].checked ||
-            selectElements.playerOneRadioBtn[1].checked == selectElements.playerTwoRadioBtn[1].checked) {
-            console.log("ERROR!");
-            selectElements.symbolWaring.style.display = "block"
-            selectElements.emptyWaring.style.display = "none"
-
-        } else {
-            selectElements.mainHeader.style.display = "block";
-            selectElements.gridContainer.style.display = "grid";
-            selectElements.playerDetailsScreen.style.display = "none"
-        }
-    }
-
 
     let isPlayerActive = "";
     makePlayerActive();
@@ -127,10 +158,3 @@ function createPlayer(playerName, playerNumber, playerSymbol) {
         isPlayerActive,
     }
 }
-
-
-let player1 = createPlayer("Sudeep", "1", "X");
-let player2 = createPlayer("Nair", "2", "O");
-
-// TODO: THIS WILL HELP WITH EXTRACTING PlAYER CHOICE VALUE
-// playerOneRadioBtn[0].labels[0].innerText
