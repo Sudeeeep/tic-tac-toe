@@ -23,6 +23,9 @@ const selectElementsModule = (function () {
     const playerDetailsScreen = document.querySelector(".player-details-screen");
     const mainHeader = document.querySelector(".main-header");
     const winnerScreen = document.querySelector(".winner-screen");
+    const resetBtn = document.querySelector(".reset-btn");
+    const restartBtn = document.querySelector(".restart-btn");
+    const btnContainer = document.querySelector(".btn-container");
 
     return {
         form,
@@ -38,6 +41,9 @@ const selectElementsModule = (function () {
         playerDetailsScreen,
         mainHeader,
         winnerScreen,
+        resetBtn,
+        restartBtn,
+        btnContainer,
     };
 })();
 
@@ -47,8 +53,11 @@ const selectElementsModule = (function () {
 //Display Controller Module
 const displayControllerModule = (function () {
 
+
+    let index;
     let player1;
     let player2;
+    let isGameOver = gameBoardModule.gameBoard.includes("");
     selectElementsModule.startGameBtn.addEventListener("click", playerValues);
 
     //Function to take user input and create player object with the input
@@ -82,7 +91,8 @@ const displayControllerModule = (function () {
     function renderToDisplay(e) {
 
         //get index of each box
-        let index = e.target.dataset.index;
+        index = e.target.dataset.index;
+
 
         // Restrict players from playing in spots that are already taken 
         if (gameBoardModule.gameBoard[index] == "") {
@@ -95,6 +105,10 @@ const displayControllerModule = (function () {
                 player1.isPlayerActive = "false";
                 player2.isPlayerActive = "true";
                 checkWin();
+                if (isGameOver === false) {
+                    checkDraw();
+                }
+
             }
             //Check if it is Player2's turn to play
             else if (player2.isPlayerActive == "true") {
@@ -104,10 +118,15 @@ const displayControllerModule = (function () {
                 player2.isPlayerActive = "false";
                 player1.isPlayerActive = "true";
                 checkWin();
+                if (isGameOver === false) {
+                    checkDraw();
+                }
+
             }
         }
     }
 
+    //function to check winner
     function checkWin() {
         let winCases = [
             [0, 1, 2],
@@ -120,40 +139,48 @@ const displayControllerModule = (function () {
             [2, 4, 6],
         ]
 
-        let isGameOver = gameBoardModule.gameBoard.includes("");
-
-        console.log(isGameOver === true);
-
         winCases.forEach(win => {
 
-            if (isGameOver === false) {
-                checkDraw();
-            }
-
             if ((selectElementsModule.gridBox[win[0]].innerText === selectElementsModule.gridBox[win[1]].innerText) &&
-                (selectElementsModule.gridBox[win[0]].innerText === selectElementsModule.gridBox[win[2]].innerText) &&
-                (selectElementsModule.gridBox[win[0]].innerText !== "")) {
+                (selectElementsModule.gridBox[win[2]].innerText === selectElementsModule.gridBox[win[1]].innerText) &&
+                (selectElementsModule.gridBox[win[1]].innerText !== "")) {
+
                 if (player1.playerSymbol === selectElementsModule.gridBox[win[0]].innerText) {
-                    console.log(`${player1.playerName} WINS`);
+
                     selectElementsModule.winnerScreen.style.display = "flex";
                     selectElementsModule.winnerScreen.innerText = `${player1.playerName.toUpperCase()} WINS`;
                     selectElementsModule.gridContainer.style.pointerEvents = "none";
+
+                    selectElementsModule.winnerScreen.appendChild(selectElementsModule.btnContainer);
+                    selectElementsModule.resetBtn.style.display = "none";
+                    selectElementsModule.restartBtn.innerText = "PLAY AGAIN?"
                 } else {
-                    console.log(`${player2.playerName} WINS`)
+
                     selectElementsModule.winnerScreen.style.display = "flex";
                     selectElementsModule.winnerScreen.innerText = `${player2.playerName.toUpperCase()} WINS`;
                     selectElementsModule.gridContainer.style.pointerEvents = "none";
+
+                    selectElementsModule.winnerScreen.appendChild(selectElementsModule.btnContainer);
+                    selectElementsModule.resetBtn.style.display = "none";
+                    selectElementsModule.restartBtn.innerText = "PLAY AGAIN?"
                 }
 
             }
 
         })
+
+
     }
 
     function checkDraw() {
+
         selectElementsModule.winnerScreen.style.display = "flex";
         selectElementsModule.winnerScreen.innerText = `IT'S A TIE`;
         selectElementsModule.gridContainer.style.pointerEvents = "none";
+
+        selectElementsModule.winnerScreen.appendChild(selectElementsModule.btnContainer);
+        selectElementsModule.resetBtn.style.display = "none";
+        selectElementsModule.restartBtn.innerText = "PLAY AGAIN?"
     }
 
     return {
@@ -162,6 +189,21 @@ const displayControllerModule = (function () {
     }
 
 
+})();
+
+
+const toggleGameModule = (function () {
+    selectElementsModule.restartBtn.addEventListener("click", restartGame);
+    selectElementsModule.resetBtn.addEventListener("click", resetGame);
+
+    function resetGame() {
+        gameBoardModule.gameBoard = gameBoardModule.gameBoard.map(box => box = "");
+        selectElementsModule.gridBox.forEach(grid => grid.innerText = "");
+    }
+
+    function restartGame() {
+        location.reload();
+    }
 })();
 
 
@@ -186,6 +228,7 @@ const validateModule = (function () {
         } else {
             selectElementsModule.mainHeader.style.display = "block";
             selectElementsModule.gridContainer.style.display = "grid";
+            selectElementsModule.btnContainer.style.display = "flex";
             selectElementsModule.playerDetailsScreen.style.display = "none"
         }
     }
@@ -216,6 +259,3 @@ function createPlayer(playerName, playerNumber, playerSymbol) {
         isPlayerActive,
     }
 }
-
-
-//TODO: BUILD WINNING LOGIC AND DISPLAY WINNER.

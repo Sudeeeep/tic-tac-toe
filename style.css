@@ -19,6 +19,7 @@ body {
 
 .main-header {
   text-align: center;
+  margin-top: 1rem;
   display: none;
   font-size: 50px;
 }
@@ -130,7 +131,34 @@ input[type="radio"] {
   position: relative;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   bottom: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(3px);
+}
+
+.btn-container {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  gap: 2rem;
+  display: none;
+}
+
+.reset-btn,
+.restart-btn {
+  border: 1px solid;
+  font-size: 20px;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.reset-btn:hover {
+  background-color: rgb(235, 38, 38);
+  transform: scale(1.1);
+}
+
+.restart-btn:hover {
+  background-color: rgb(6, 239, 6);
+  transform: scale(1.1);
 }
