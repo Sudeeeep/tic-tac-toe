@@ -22,6 +22,7 @@ const selectElementsModule = (function () {
     const gridBox = document.querySelectorAll(".grid-box");
     const playerDetailsScreen = document.querySelector(".player-details-screen");
     const mainHeader = document.querySelector(".main-header");
+    const winnerScreen = document.querySelector(".winner-screen");
 
     return {
         form,
@@ -36,36 +37,11 @@ const selectElementsModule = (function () {
         gridBox,
         playerDetailsScreen,
         mainHeader,
+        winnerScreen,
     };
 })();
 
 
-// Module to values in form entered by user
-const validateModule = (function () {
-
-    selectElementsModule.startGameBtn.addEventListener("click", validateChoice)
-
-    // Form Validation   
-    function validateChoice() {
-
-        if (selectElementsModule.playerOneName.value == "" || selectElementsModule.playerTwoName.value == "") {
-
-            selectElementsModule.emptyWaring.style.display = "block"
-
-        } else if (selectElementsModule.playerOneRadioBtn[0].checked == selectElementsModule.playerTwoRadioBtn[0].checked ||
-            selectElementsModule.playerOneRadioBtn[1].checked == selectElementsModule.playerTwoRadioBtn[1].checked) {
-
-            selectElementsModule.symbolWaring.style.display = "block"
-            selectElementsModule.emptyWaring.style.display = "none"
-
-        } else {
-            selectElementsModule.mainHeader.style.display = "block";
-            selectElementsModule.gridContainer.style.display = "grid";
-            selectElementsModule.playerDetailsScreen.style.display = "none"
-        }
-    }
-
-})();
 
 
 //Display Controller Module
@@ -116,22 +92,104 @@ const displayControllerModule = (function () {
 
                 gameBoardModule.gameBoard[index] = player1.playerSymbol;
                 e.target.innerText = gameBoardModule.gameBoard[index];
-                console.log(gameBoardModule.gameBoard);
                 player1.isPlayerActive = "false";
                 player2.isPlayerActive = "true";
-
+                checkWin();
             }
             //Check if it is Player2's turn to play
             else if (player2.isPlayerActive == "true") {
 
                 gameBoardModule.gameBoard[index] = player2.playerSymbol;
                 e.target.innerText = gameBoardModule.gameBoard[index];
-                console.log(gameBoardModule.gameBoard);
                 player2.isPlayerActive = "false";
                 player1.isPlayerActive = "true";
+                checkWin();
             }
         }
-    };
+    }
+
+    function checkWin() {
+        let winCases = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ]
+
+        let isGameOver = gameBoardModule.gameBoard.includes("");
+
+        console.log(isGameOver === true);
+
+        winCases.forEach(win => {
+
+            if (isGameOver === false) {
+                checkDraw();
+            }
+
+            if ((selectElementsModule.gridBox[win[0]].innerText === selectElementsModule.gridBox[win[1]].innerText) &&
+                (selectElementsModule.gridBox[win[0]].innerText === selectElementsModule.gridBox[win[2]].innerText) &&
+                (selectElementsModule.gridBox[win[0]].innerText !== "")) {
+                if (player1.playerSymbol === selectElementsModule.gridBox[win[0]].innerText) {
+                    console.log(`${player1.playerName} WINS`);
+                    selectElementsModule.winnerScreen.style.display = "flex";
+                    selectElementsModule.winnerScreen.innerText = `${player1.playerName.toUpperCase()} WINS`;
+                    selectElementsModule.gridContainer.style.pointerEvents = "none";
+                } else {
+                    console.log(`${player2.playerName} WINS`)
+                    selectElementsModule.winnerScreen.style.display = "flex";
+                    selectElementsModule.winnerScreen.innerText = `${player2.playerName.toUpperCase()} WINS`;
+                    selectElementsModule.gridContainer.style.pointerEvents = "none";
+                }
+
+            }
+
+        })
+    }
+
+    function checkDraw() {
+        selectElementsModule.winnerScreen.style.display = "flex";
+        selectElementsModule.winnerScreen.innerText = `IT'S A TIE`;
+        selectElementsModule.gridContainer.style.pointerEvents = "none";
+    }
+
+    return {
+        player1,
+        player2
+    }
+
+
+})();
+
+
+// Module to values in form entered by user
+const validateModule = (function () {
+
+    selectElementsModule.startGameBtn.addEventListener("click", validateChoice)
+
+    // Form Validation   
+    function validateChoice() {
+
+        if (selectElementsModule.playerOneName.value == "" || selectElementsModule.playerTwoName.value == "") {
+
+            selectElementsModule.emptyWaring.style.display = "block"
+
+        } else if (selectElementsModule.playerOneRadioBtn[0].checked == selectElementsModule.playerTwoRadioBtn[0].checked ||
+            selectElementsModule.playerOneRadioBtn[1].checked == selectElementsModule.playerTwoRadioBtn[1].checked) {
+
+            selectElementsModule.symbolWaring.style.display = "block"
+            selectElementsModule.emptyWaring.style.display = "none"
+
+        } else {
+            selectElementsModule.mainHeader.style.display = "block";
+            selectElementsModule.gridContainer.style.display = "grid";
+            selectElementsModule.playerDetailsScreen.style.display = "none"
+        }
+    }
+
 })();
 
 
@@ -158,3 +216,6 @@ function createPlayer(playerName, playerNumber, playerSymbol) {
         isPlayerActive,
     }
 }
+
+
+//TODO: BUILD WINNING LOGIC AND DISPLAY WINNER.
