@@ -19,7 +19,7 @@ const selectElementsModule = (function () {
     const emptyWaring = document.getElementById("empty-warning");
     const symbolWaring = document.getElementById("symbol-warning");
     const gridContainer = document.querySelector(".grid-container");
-    const gridBox = document.querySelectorAll(".grid-box");
+    const gridBox = Array.from(document.querySelectorAll(".grid-box"));
     const playerDetailsScreen = document.querySelector(".player-details-screen");
     const mainHeader = document.querySelector(".main-header");
     const winnerScreen = document.querySelector(".winner-screen");
@@ -48,16 +48,13 @@ const selectElementsModule = (function () {
 })();
 
 
-
-
 //Display Controller Module
 const displayControllerModule = (function () {
-
 
     let index;
     let player1;
     let player2;
-    let isGameOver = gameBoardModule.gameBoard.includes("");
+
     selectElementsModule.startGameBtn.addEventListener("click", playerValues);
 
     //Function to take user input and create player object with the input
@@ -105,9 +102,6 @@ const displayControllerModule = (function () {
                 player1.isPlayerActive = "false";
                 player2.isPlayerActive = "true";
                 checkWin();
-                if (isGameOver === false) {
-                    checkDraw();
-                }
 
             }
             //Check if it is Player2's turn to play
@@ -118,9 +112,6 @@ const displayControllerModule = (function () {
                 player2.isPlayerActive = "false";
                 player1.isPlayerActive = "true";
                 checkWin();
-                if (isGameOver === false) {
-                    checkDraw();
-                }
 
             }
         }
@@ -139,12 +130,16 @@ const displayControllerModule = (function () {
             [2, 4, 6],
         ]
 
-        winCases.forEach(win => {
 
+        for (win of winCases) {
+
+            //check if anyone won
             if ((selectElementsModule.gridBox[win[0]].innerText === selectElementsModule.gridBox[win[1]].innerText) &&
-                (selectElementsModule.gridBox[win[2]].innerText === selectElementsModule.gridBox[win[1]].innerText) &&
-                (selectElementsModule.gridBox[win[1]].innerText !== "")) {
+                (selectElementsModule.gridBox[win[0]].innerText === selectElementsModule.gridBox[win[2]].innerText) &&
+                (selectElementsModule.gridBox[win[0]].innerText !== "")) {
 
+
+                //check if player1 won   
                 if (player1.playerSymbol === selectElementsModule.gridBox[win[0]].innerText) {
 
                     selectElementsModule.winnerScreen.style.display = "flex";
@@ -153,8 +148,11 @@ const displayControllerModule = (function () {
 
                     selectElementsModule.winnerScreen.appendChild(selectElementsModule.btnContainer);
                     selectElementsModule.resetBtn.style.display = "none";
-                    selectElementsModule.restartBtn.innerText = "PLAY AGAIN?"
-                } else {
+                    selectElementsModule.restartBtn.innerText = "PLAY AGAIN?";
+                    break;
+                }
+                //check if player2 won
+                if (player2.playerSymbol === selectElementsModule.gridBox[win[0]].innerText) {
 
                     selectElementsModule.winnerScreen.style.display = "flex";
                     selectElementsModule.winnerScreen.innerText = `${player2.playerName.toUpperCase()} WINS`;
@@ -162,16 +160,19 @@ const displayControllerModule = (function () {
 
                     selectElementsModule.winnerScreen.appendChild(selectElementsModule.btnContainer);
                     selectElementsModule.resetBtn.style.display = "none";
-                    selectElementsModule.restartBtn.innerText = "PLAY AGAIN?"
+                    selectElementsModule.restartBtn.innerText = "PLAY AGAIN?";
+                    break;
                 }
-
             }
+            //check if game is tied
+            else if (gameBoardModule.gameBoard.includes("") == false) {
 
-        })
-
-
+                checkDraw();
+            }
+        }
     }
 
+    //function to check if game is tie
     function checkDraw() {
 
         selectElementsModule.winnerScreen.style.display = "flex";
@@ -188,10 +189,10 @@ const displayControllerModule = (function () {
         player2
     }
 
-
 })();
 
 
+// module to reset or restart game
 const toggleGameModule = (function () {
     selectElementsModule.restartBtn.addEventListener("click", restartGame);
     selectElementsModule.resetBtn.addEventListener("click", resetGame);
@@ -236,21 +237,13 @@ const validateModule = (function () {
 })();
 
 
-
 //Factory Function to create players
 function createPlayer(playerName, playerNumber, playerSymbol) {
 
     let isPlayerActive = "";
-    makePlayerActive();
 
     // Make Player1 Active so Player1 can play first
-    function makePlayerActive() {
-        if (playerNumber == "1") {
-            isPlayerActive = "true";
-        } else {
-            isPlayerActive = "false";
-        }
-    }
+    playerNumber == "1" ? isPlayerActive = "true" : isPlayerActive = "false";
 
     return {
         playerName,
